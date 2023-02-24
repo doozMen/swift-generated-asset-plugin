@@ -1,0 +1,131 @@
+
+import Foundation
+import PackagePlugin
+
+// MARK: - Error
+
+enum Error: Swift.Error {
+  case missingLizardFolder
+}
+
+@main
+struct GerenateColorAssets: BuildToolPlugin {
+
+  // MARK: Internal
+
+  func createBuildCommands(context: PluginContext, target: Target) async throws -> [Command] {
+    // Print a message to indicate that the function has started
+    print("📦 generate-color-asset-catalog on \(target.name)")
+
+    // Create the output directory for the color asset catalog
+    let assets = context.pluginWorkDirectory.appending(subpath: "assets.xcassets")
+    try createColorAssetCatalogOutputDirectoryIfNeeded(at: assets)
+
+    // Determine the color sets that need to be created
+    let colorSets = Set(["fooColor", "barColor"])
+
+    let fooTextFile = context.pluginWorkDirectory.appending("foo.text")
+
+    // Create the output files for the color sets
+    try createOutputFilesForColorSets(colorSets: colorSets, assetsDirectory: assets)
+
+    return [
+//       Does not work using this
+//      .buildCommand(
+//        displayName: "Generating empty file",
+//        executable: .init("/usr/bin/touch"),
+//        arguments: [fooTextFile.string],
+//        outputFiles: [fooTextFile.string]
+//      )
+      // works only for a prebuild but that is ran on every build
+      .prebuildCommand(
+        displayName: "Generating empty file",
+        executable: .init("/usr/bin/touch"),
+        arguments: [fooTextFile.string],
+        outputFilesDirectory: context.pluginWorkDirectory
+      )
+    ]
+  }
+
+  func createColorAssetCatalogOutputDirectoryIfNeeded(at assetsDirectory: Path) throws {
+    guard !fileManager.folderExists(atPath: assetsDirectory.string) else {
+      return
+    }
+    try fileManager.createDirectory(atPath: assetsDirectory.string, withIntermediateDirectories: false)
+  }
+
+  // Create the output files for the color sets
+  func createOutputFilesForColorSets(colorSets: Set<String>, assetsDirectory: Path) throws {
+    try colorSets.forEach { colorSet in
+      let outputFolderPath = assetsDirectory.appending(subpath: "\(colorSet).colorset")
+      let outputFilePath = outputFolderPath.appending(subpath: "Contents.json")
+
+      guard !fileManager.folderExists(atPath: outputFolderPath.string) else {
+        return
+      }
+      try fileManager.createDirectory(atPath: outputFolderPath.string, withIntermediateDirectories: false)
+      fileManager.createFile(atPath: outputFilePath.string, contents: colorJSON.data(using: .utf8))
+    }
+  }
+
+  // MARK: Private
+
+  private let fileManager = FileManager.default
+
+}
+
+let colorJSON = """
+{
+  "token" : "buttonBackgroundSecondaryActiveFill",
+  "info" : {
+    "version" : 1,
+    "author" : "chameleon"
+  },
+  "colors" : [
+    {
+      "idiom" : "universal",
+      "color" : {
+        "color-space" : "srgb",
+        "components" : {
+          "red" : 1,
+          "alpha" : 1,
+          "blue" : 0,
+          "green" : 0
+        }
+      },
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "light"
+        }
+      ]
+    },
+    {
+      "idiom" : "universal",
+      "color" : {
+        "color-space" : "srgb",
+        "components" : {
+          "red" : 0,
+          "alpha" : 1,
+          "blue" : 0,
+          "green" : 1
+        }
+      },
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "dark"
+        }
+      ]
+    }
+  ]
+}
+"""
+
+extension FileManager {
+  func folderExists(atPath path: String) -> Bool {
+    var isDirectory: ObjCBool = false
+    let exists = fileExists(atPath: path, isDirectory: &isDirectory)
+    return exists && isDirectory.boolValue
+  }
+}
