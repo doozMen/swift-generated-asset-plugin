@@ -19,7 +19,7 @@ public struct SwiftUIView: View {
         print(Color("fooColor", bundle: .module))
         // lets try to print contents of text file
         // printing only works with xcode 14.3
-        let url = Bundle.module.url(forResource: "foo", withExtension: "text")!
+        let url = Bundle.module.url(forResource: "foo", withExtension: "txt")!
         print(try! String(contentsOf: url))
       }
     }

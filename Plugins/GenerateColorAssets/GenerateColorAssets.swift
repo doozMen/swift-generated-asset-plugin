@@ -9,7 +9,7 @@ enum Error: Swift.Error {
 }
 
 @main
-struct GerenateColorAssets: BuildToolPlugin {
+struct GenerateColorAssets: BuildToolPlugin {
 
   // MARK: Internal
 
@@ -21,28 +21,23 @@ struct GerenateColorAssets: BuildToolPlugin {
     let assets = context.pluginWorkDirectory.appending(subpath: "assets.xcassets")
     try createColorAssetCatalogOutputDirectoryIfNeeded(at: assets)
 
+
     // Determine the color sets that need to be created
     let colorSets = Set(["fooColor", "barColor"])
-
-    let fooTextFile = context.pluginWorkDirectory.appending("foo.text")
 
     // Create the output files for the color sets
     try createOutputFilesForColorSets(colorSets: colorSets, assetsDirectory: assets)
 
+    // Just for testing also add an empty file
+    let fooTextFile = context.pluginWorkDirectory.appending("foo.txt")
+
     return [
-//       Does not work using this
-//      .buildCommand(
-//        displayName: "Generating empty file",
-//        executable: .init("/usr/bin/touch"),
-//        arguments: [fooTextFile.string],
-//        outputFiles: [fooTextFile.string]
-//      )
-      // works only for a prebuild but that is ran on every build
-      .prebuildCommand(
+       // Does not work using this
+      .buildCommand(
         displayName: "Generating empty file",
         executable: .init("/usr/bin/touch"),
         arguments: [fooTextFile.string],
-        outputFilesDirectory: context.pluginWorkDirectory
+        outputFiles: [fooTextFile, assets]
       )
     ]
   }
@@ -63,6 +58,7 @@ struct GerenateColorAssets: BuildToolPlugin {
       guard !fileManager.folderExists(atPath: outputFolderPath.string) else {
         return
       }
+
       try fileManager.createDirectory(atPath: outputFolderPath.string, withIntermediateDirectories: false)
       fileManager.createFile(atPath: outputFilePath.string, contents: colorJSON.data(using: .utf8))
     }

@@ -14,6 +14,7 @@ let package = Package(
   dependencies: [],
   targets: [
     .plugin(name: "GenerateColorAssets", capability: .buildTool()),
+    .executableTarget(name: "PluginGeneratedResources", plugins: ["GenerateColorAssets"] ),
     .target(
       name: "swift-generated-asset-plugin",
       dependencies: [],
