@@ -14,6 +14,7 @@ public struct SwiftUIView: View {
   public var body: some View {
     VStack {
       Text("Hello, World!")
+      // In light shows text in red, dark in green
         .foregroundColor(Color("fooColor", bundle: .module))
       Button("print color") {
         print(Color("fooColor", bundle: .module))

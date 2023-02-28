@@ -1,9 +1,10 @@
 # swift-generated-asset-plugin
 
-This is an example to accompany a question about resources added via plugins to the `pluginWorkinDirectory`.
+Generated an `assets.xcassets` catalog that loads colors when plugin is applied to a target.
 
-As you can see in the plugin code this code only works if you use a `prebuild` command.
-It does not work for a buildTool command. Which is unfortunate as `prebuild` commands are ran all the 
-time.
+> Note: This repo was created because I struggled to let colors be recognised. 
+The problem was I added every individual `assets.xcassets/colorName.colorset/Content.json` file to the
+outputFiles of the build command. This causes duplicated files. Just adding the folder makes SPM load the a
+asset catalog correctly.
 
-
+Take a look at the plugin ``GenerateColorAssets`` to find out how to do this if you struggle with the same. 

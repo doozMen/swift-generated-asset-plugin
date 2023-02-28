@@ -37,6 +37,7 @@ struct GenerateColorAssets: BuildToolPlugin {
         displayName: "Generating empty file",
         executable: .init("/usr/bin/touch"),
         arguments: [fooTextFile.string],
+        // ⚠️ It is important to add only the assets and not the individual Content.json files here.
         outputFiles: [fooTextFile, assets]
       )
     ]
