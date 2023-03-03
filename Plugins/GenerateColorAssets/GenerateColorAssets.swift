@@ -6,6 +6,7 @@ import PackagePlugin
 
 enum Error: Swift.Error {
   case missingLizardFolder
+  case couldNotCreateFile(path: Path)
 }
 
 @main
@@ -30,15 +31,28 @@ struct GenerateColorAssets: BuildToolPlugin {
 
     // Just for testing also add an empty file
     let fooTextFile = context.pluginWorkDirectory.appending("foo.txt")
+    let swiftAssetFile = context.pluginWorkDirectory.appending("Assets.swift")
+    try FileManager.default.createFileIfNeeded(atPath: swiftAssetFile)
+    // just as an example
+
+    let swiftAssets = """
+    import SwiftUI
+
+    struct Assets {
+      static let fooColor = Color("fooColor", bundle: .module)
+      static let barColor = Color("barColor", bundle: .module)
+    }
+    """
+
+    try swiftAssets.write(to: .init(fileURLWithPath: swiftAssetFile.string), atomically: true, encoding: .utf8)
 
     return [
-       // Does not work using this
       .buildCommand(
         displayName: "Generating empty file",
         executable: .init("/usr/bin/touch"),
         arguments: [fooTextFile.string],
         // ⚠️ It is important to add only the assets and not the individual Content.json files here.
-        outputFiles: [fooTextFile, assets]
+        outputFiles: [fooTextFile, assets, swiftAssetFile]
       )
     ]
   }
@@ -124,5 +138,14 @@ extension FileManager {
     var isDirectory: ObjCBool = false
     let exists = fileExists(atPath: path, isDirectory: &isDirectory)
     return exists && isDirectory.boolValue
+  }
+  func createFileIfNeeded(atPath path: Path) throws {
+    guard !FileManager.default.fileExists(atPath: path.string) else {
+      return
+    }
+    guard FileManager.default.createFile(atPath: path.string, contents: nil) else {
+      throw Error.couldNotCreateFile(path: path)
+    }
+
   }
 }

@@ -8,3 +8,9 @@ outputFiles of the build command. This causes duplicated files. Just adding the 
 asset catalog correctly.
 
 Take a look at the plugin ``GenerateColorAssets`` to find out how to do this if you struggle with the same. 
+
+## Illustrate possible bug
+
+[Can Swift plugin target sourceFiles contain generated files? - Development / Package Manager - Swift Forums](https://forums.swift.org/t/can-swift-plugin-target-sourcefiles-contain-generated-files/63479)
+
+This is visible if you build the target `Foo` and go to the build log.

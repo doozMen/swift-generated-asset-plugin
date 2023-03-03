@@ -8,16 +8,19 @@ let package = Package(
   platforms: [.macOS(.v13), .iOS(.v13)],
   products: [
     .library(
-      name: "swift-generated-asset-plugin",
-      targets: ["swift-generated-asset-plugin"]),
+      name: "UIComponents",
+      targets: ["UIComponents"]),
+    .library(name: "Foo", targets: ["Foo"])
   ],
   dependencies: [],
   targets: [
+    // Generated assets and a swift file to access them
     .plugin(name: "GenerateColorAssets", capability: .buildTool()),
+    .plugin(name: "ReuseGenerated", capability: .buildTool()),
     .executableTarget(name: "PluginGeneratedResources", plugins: ["GenerateColorAssets"] ),
+    .target(name: "Foo", plugins: ["ReuseGenerated"]),
     .target(
-      name: "swift-generated-asset-plugin",
-      dependencies: [],
+      name: "UIComponents",
       plugins: ["GenerateColorAssets"]
     )
     ]
